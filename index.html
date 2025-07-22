@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coherix Crypto Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        h1, h2, h3 {
+            color: #4caf50;
+        }
+        label {
+            font-weight: bold;
+        }
+        .form-control, .btn {
+            background-color: #2c2c2c;
+            border: 1px solid #4caf50;
+            color: #ffffff;
+        }
+        .btn {
+            background-color: #4caf50;
+            border: none;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .result {
+            background-color: #2c2c2c;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #888888;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-center">Coherix Crypto Analysis</h1>
+    <form id="analyze-form">
+        <div class="form-group">
+            <label for="ticker1">Ticker 1:</label>
+            <input type="text" class="form-control" id="ticker1" name="ticker1" value="BTCUSDT">
+        </div>
+        <div class="form-group">
+            <label for="ticker2">Ticker 2:</label>
+            <input type="text" class="form-control" id="ticker2" name="ticker2" value="ETHUSDT">
+        </div>
+        <!-- Replace begin/end index fields with datetime-local fields -->
+        <div class="form-group">
+            <label for="start_date">Start Date & Time:</label>
+            <input type="datetime-local" class="form-control" id="start_date" name="start_date"
+                value="{{ request.form.start_date or ( (datetime.datetime.now() - datetime.timedelta(days=5)).strftime('%Y-%m-%dT%H:%M') ) }}">
+        </div>
+        <div class="form-group">
+            <label for="end_date">End Date & Time:</label>
+            <input type="datetime-local" class="form-control" id="end_date" name="end_date"
+                value="{{ request.form.end_date or datetime.datetime.now().strftime('%Y-%m-%dT%H:%M') }}">
+        </div>
+        <div class="form-group">
+            <label for="sampling_rate">Sampling Rate:</label>
+            <input type="number" class="form-control" id="sampling_rate" name="sampling_rate" value="250" min="1">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Analyze</button>
+    </form>
+
+    <div class="result" id="result" style="display:none;">
+        <h2>Analysis Result</h2>
+        <div id="plots"></div>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2023 Coherix Crypto. All rights reserved.</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+document.getElementById('analyze-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const ticker1 = document.getElementById('ticker1').value;
+  const ticker2 = document.getElementById('ticker2').value;
+  const start_date = document.getElementById('start_date').value;
+  const end_date = document.getElementById('end_date').value;
+  const sampling_rate = document.getElementById('sampling_rate').value;
+
+  fetch('/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ticker1: ticker1,
+      ticker2: ticker2,
+      start_date: start_date,
+      end_date: end_date,
+      sampling_rate: sampling_rate ? parseInt(sampling_rate) : 250,
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById('result').style.display = 'block';
+    document.getElementById('plots').innerHTML = `
+      <h3>Coherence Plot</h3>
+      <img src="data:image/png;base64,${data.coherence_plot}" class="img-fluid">
+      <h3>Stock 1 & Stock 2 Detrended</h3>
+      <img src="data:image/png;base64,${data.stock_plot}" class="img-fluid">
+    `;
+  })
+  .catch(error => console.error('Error:', error));
+});
+</script>
+</body>
+</html>
