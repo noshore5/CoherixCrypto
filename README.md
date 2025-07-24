@@ -1,4 +1,4 @@
-# CryptoLive - Live Charts FastAPI App
+# CoherixLive
 
 This app provides a live cryptocurrency price chart using FastAPI and Plotly, fetching real-time data from Binance.
 

@@ -3,3 +3,7 @@ uvicorn
 aiohttp
 jinja2
 numpy
+scipy
+plotly
+fcwt
+matplotlib
