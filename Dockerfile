@@ -15,9 +15,9 @@ COPY requirements.txt .
     libffi-dev \
     libssl-dev \
     libatlas-base-dev \
-    libpng-dev \
+#   libpng-dev \
     libfftw3-dev \
-#     libfftw3-single3 \
+#   libfftw3-single3 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir -r requirements.txt

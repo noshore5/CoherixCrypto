@@ -8,6 +8,9 @@ import numpy as np
 import uvicorn
 from scipy.signal import detrend
 from matplotlib import pyplot as plt
+from fastapi import WebSocket, WebSocketDisconnect
+import aiohttp
+import asyncio
 
 from utils.binance_utils import get_binance_live_data  # or get_live_data, choose one
 from utils.coherence_utils import coherence, transform
@@ -99,9 +102,28 @@ async def calculate_coherence(data: dict = Body(...)):
         print(f"Error calculating coherence: {e}")  # Debugging line
         raise HTTPException(status_code=422, detail=str(e))
 
+@app.websocket("/ws/binance")
+async def websocket_binance(websocket: WebSocket):
+    await websocket.accept()
+    symbols = ['btcusdt', 'ethusdt']
+    url = f"wss://stream.binance.com:9443/stream?streams=" + '/'.join(f"{s}@trade" for s in symbols)
+    session = aiohttp.ClientSession()
+    try:
+        async with session.ws_connect(url) as ws:
+            while True:
+                msg = await ws.receive()
+                if msg.type == aiohttp.WSMsgType.TEXT:
+                    await websocket.send_text(msg.data)
+                elif msg.type == aiohttp.WSMsgType.ERROR:
+                    break
+    except WebSocketDisconnect:
+        pass
+    except Exception:
+        await websocket.close()
+    finally:
+        await session.close()
 
 
 # Uvicorn entry point
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
