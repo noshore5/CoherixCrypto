@@ -21,7 +21,7 @@ def transform(signal1, frame_rate, highest, lowest, nfreqs=100):
     frame_rate = 1
     lowest = .002
     highest = .025
-    nfreqs = 300
+    nfreqs = 200
 
     freqs, coeffs1 = fcwt.cwt(signal1, frame_rate, lowest, highest, nfreqs, nthreads=4, scaling='log')
     return coeffs1, freqs

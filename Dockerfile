@@ -8,20 +8,20 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install dependencies
-RUN apt-get update && apt-get install -y g++
-RUN apt-get update && apt-get install -y \
+ RUN apt-get update && apt-get install -y \
+    g++ \
     build-essential \
     gcc \
     libffi-dev \
     libssl-dev \
     libatlas-base-dev \
-    libjpeg-dev \
     libpng-dev \
     libfftw3-dev \
-    libfftw3-single3 \
+#     libfftw3-single3 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir -r requirements.txt
+
 
 # Copy the rest of the app
 COPY . .
